@@ -7,9 +7,12 @@ import imageio
 from albumentations import HorizontalFlip, VerticalFlip, Rotate
 
 """ Create a directory """
+
+
 def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
 
 def load_data(path):
     train_x = sorted(glob(os.path.join(path, "training", "images", "*.tif")))
@@ -20,11 +23,12 @@ def load_data(path):
 
     return (train_x, train_y), (test_x, test_y)
 
+
 def augment_data(images, masks, save_path, augment=True):
     size = (512, 512)
 
     for idx, (x, y) in tqdm(enumerate(zip(images, masks)), total=len(images)):
-        """ Extracting the name """
+        """Extracting the name"""
         name = x.split("/")[-1].split(".")[0]
 
         """ Reading image and mask """
@@ -70,8 +74,9 @@ def augment_data(images, masks, save_path, augment=True):
 
             index += 1
 
+
 if __name__ == "__main__":
-    """ Seeding """
+    """Seeding"""
     np.random.seed(42)
 
     """ Load the data """
