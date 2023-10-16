@@ -1,4 +1,3 @@
-
 import os
 import time
 from glob import glob
@@ -12,11 +11,14 @@ from model import build_unet
 from loss import DiceLoss, DiceBCELoss
 from utils import seeding, create_dir, epoch_time
 
+from tqdm import tqdm
+
+
 def train(model, loader, optimizer, loss_fn, device):
     epoch_loss = 0.0
 
     model.train()
-    for x, y in loader:
+    for x, y in tqdm(loader):
         x = x.to(device, dtype=torch.float32)
         y = y.to(device, dtype=torch.float32)
 
@@ -27,8 +29,9 @@ def train(model, loader, optimizer, loss_fn, device):
         optimizer.step()
         epoch_loss += loss.item()
 
-    epoch_loss = epoch_loss/len(loader)
+    epoch_loss = epoch_loss / len(loader)
     return epoch_loss
+
 
 def evaluate(model, loader, loss_fn, device):
     epoch_loss = 0.0
@@ -43,22 +46,23 @@ def evaluate(model, loader, loss_fn, device):
             loss = loss_fn(y_pred, y)
             epoch_loss += loss.item()
 
-        epoch_loss = epoch_loss/len(loader)
+        epoch_loss = epoch_loss / len(loader)
     return epoch_loss
 
+
 if __name__ == "__main__":
-    """ Seeding """
+    """Seeding"""
     seeding(42)
 
     """ Directories """
     create_dir("files")
 
     """ Load dataset """
-    train_x = sorted(glob("../new_data/train/image/*"))
-    train_y = sorted(glob("../new_data/train/mask/*"))
+    train_x = sorted(glob("../data/toy_set/test/img/*"))
+    train_y = sorted(glob("../data/toy_set/test/mask/*"))
 
-    valid_x = sorted(glob("../new_data/test/image/*"))
-    valid_y = sorted(glob("../new_data/test/mask/*"))
+    valid_x = sorted(glob("../data/toy_set/test/img/*"))
+    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -67,35 +71,31 @@ if __name__ == "__main__":
     H = 512
     W = 512
     size = (H, W)
-    batch_size = 2
-    num_epochs = 50
+    batch_size = 1
+    num_epochs = 200
     lr = 1e-4
-    checkpoint_path = "files/checkpoint.pth"
+    checkpoint_path = "./toy.pth"
 
     """ Dataset and loader """
     train_dataset = DriveDataset(train_x, train_y)
     valid_dataset = DriveDataset(valid_x, valid_y)
 
     train_loader = DataLoader(
-        dataset=train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=2
+        dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2
     )
 
     valid_loader = DataLoader(
-        dataset=valid_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=2
+        dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2
     )
 
-    device = torch.device('cuda')   ## GTX 1060 6GB
+    device = torch.device("cuda")  ## GTX 1060 6GB
     model = build_unet()
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, verbose=True)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, "min", patience=5, verbose=True
+    )
     loss_fn = DiceBCELoss()
 
     """ Training the model """
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-        data_str = f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s\n'
-        data_str += f'\tTrain Loss: {train_loss:.3f}\n'
-        data_str += f'\t Val. Loss: {valid_loss:.3f}\n'
+        data_str = f"Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s\n"
+        data_str += f"\tTrain Loss: {train_loss:.3f}\n"
+        data_str += f"\t Val. Loss: {valid_loss:.3f}\n"
         print(data_str)
