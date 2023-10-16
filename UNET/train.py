@@ -38,7 +38,7 @@ def evaluate(model, loader, loss_fn, device):
 
     model.eval()
     with torch.no_grad():
-        for x, y in loader:
+        for x, y in tqdm(loader):
             x = x.to(device, dtype=torch.float32)
             y = y.to(device, dtype=torch.float32)
 
@@ -58,11 +58,16 @@ if __name__ == "__main__":
     create_dir("files")
 
     """ Load dataset """
-    train_x = sorted(glob("../data/split_ds/train/img/*"))
-    train_y = sorted(glob("../data/split_ds/train/vessel/*"))
+    # train_x = sorted(glob("../data/cleaned/train/img/*"))
+    # train_y = sorted(glob("../data/cleaned/train/vessel/*"))
 
-    valid_x = sorted(glob("../data/split_ds/test/img/*"))
-    valid_y = sorted(glob("../data/split_ds/test/vessel/*"))
+    # valid_x = sorted(glob("../data/cleaned/test/img/*"))
+    # valid_y = sorted(glob("../data/cleaned/test/vessel/*"))
+    train_x = sorted(glob("../data/toy_set/test/img/*"))
+    train_y = sorted(glob("../data/toy_set/test/mask/*"))
+
+    valid_x = sorted(glob("../data/toy_set/test/img/*"))
+    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -71,7 +76,7 @@ if __name__ == "__main__":
     H = 512
     W = 512
     size = (H, W)
-    batch_size = 2
+    batch_size = 4
     num_epochs = 500
     lr = 1e-4
     checkpoint_path = "./unet_500.pth"
