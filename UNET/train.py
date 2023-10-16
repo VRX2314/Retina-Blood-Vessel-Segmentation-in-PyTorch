@@ -58,11 +58,11 @@ if __name__ == "__main__":
     create_dir("files")
 
     """ Load dataset """
-    train_x = sorted(glob("../data/toy_set/test/img/*"))
-    train_y = sorted(glob("../data/toy_set/test/mask/*"))
+    train_x = sorted(glob("../data/split_ds/train/img/*"))
+    train_y = sorted(glob("../data/split_ds/train/vessel/*"))
 
-    valid_x = sorted(glob("../data/toy_set/test/img/*"))
-    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
+    valid_x = sorted(glob("../data/split_ds/test/img/*"))
+    valid_y = sorted(glob("../data/split_ds/test/vessel/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -71,10 +71,10 @@ if __name__ == "__main__":
     H = 512
     W = 512
     size = (H, W)
-    batch_size = 1
-    num_epochs = 200
+    batch_size = 2
+    num_epochs = 500
     lr = 1e-4
-    checkpoint_path = "./toy.pth"
+    checkpoint_path = "./unet_500.pth"
 
     """ Dataset and loader """
     train_dataset = DriveDataset(train_x, train_y)
