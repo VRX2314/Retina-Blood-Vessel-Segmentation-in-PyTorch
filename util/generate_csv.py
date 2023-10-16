@@ -24,4 +24,8 @@ def generate(src, dst, type):
     exp_fr.to_csv(dst, index=True, index_label="IDX")
 
 
-generate("../data/uncleaned/test/img/", "./test_img_unclean.csv", "RGB_Img")
+generate(
+    "../data/cleaned/test/img/",
+    "../data_csv/cleaned_csv/test_img.csv",
+    "RGB_Img",
+)
