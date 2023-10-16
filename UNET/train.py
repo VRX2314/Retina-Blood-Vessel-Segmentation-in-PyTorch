@@ -11,14 +11,14 @@ from model import build_unet
 from loss import DiceLoss, DiceBCELoss
 from utils import seeding, create_dir, epoch_time
 
-from tqdm import tqdm
+from rich.progress import track
 
 
 def train(model, loader, optimizer, loss_fn, device):
     epoch_loss = 0.0
 
     model.train()
-    for x, y in tqdm(loader):
+    for x, y in track(loader):
         x = x.to(device, dtype=torch.float32)
         y = y.to(device, dtype=torch.float32)
 
@@ -38,7 +38,7 @@ def evaluate(model, loader, loss_fn, device):
 
     model.eval()
     with torch.no_grad():
-        for x, y in tqdm(loader):
+        for x, y in loader:
             x = x.to(device, dtype=torch.float32)
             y = y.to(device, dtype=torch.float32)
 
@@ -54,20 +54,27 @@ if __name__ == "__main__":
     """Seeding"""
     seeding(42)
 
-    """ Directories """
-    create_dir("files")
+    # """ Directories """
+    # create_dir("files")
 
     """ Load dataset """
-    # train_x = sorted(glob("../data/cleaned/train/img/*"))
-    # train_y = sorted(glob("../data/cleaned/train/vessel/*"))
+    # train_x = sorted(glob("../data/split_ds/train/img/*"))
+    # train_y = sorted(glob("../data/split_ds/train/vessel/*"))
 
-    # valid_x = sorted(glob("../data/cleaned/test/img/*"))
-    # valid_y = sorted(glob("../data/cleaned/test/vessel/*"))
-    train_x = sorted(glob("../data/toy_set/test/img/*"))
-    train_y = sorted(glob("../data/toy_set/test/mask/*"))
+    # valid_x = sorted(glob("../data/split_ds/test/img/*"))
+    # valid_y = sorted(glob("../data/split_ds/test/vessel/*"))
 
-    valid_x = sorted(glob("../data/toy_set/test/img/*"))
-    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
+    train_x = sorted(glob("../data/smol_split/train/img/*"))
+    train_y = sorted(glob("../data/smol_split/train/vessel/*"))
+
+    valid_x = sorted(glob("../data/smol_split/test/img/*"))
+    valid_y = sorted(glob("../data/smol_split/test/vessel/*"))
+
+    # train_x = sorted(glob("../data/toy_set/test/img/*"))
+    # train_y = sorted(glob("../data/toy_set/test/mask/*"))
+
+    # valid_x = sorted(glob("../data/toy_set/test/img/*"))
+    # valid_y = sorted(glob("../data/toy_set/test/mask/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -79,21 +86,21 @@ if __name__ == "__main__":
     batch_size = 4
     num_epochs = 500
     lr = 1e-4
-    checkpoint_path = "./unet_500.pth"
+    checkpoint_path = "./unet_smol_500.pth"
 
     """ Dataset and loader """
     train_dataset = DriveDataset(train_x, train_y)
     valid_dataset = DriveDataset(valid_x, valid_y)
 
     train_loader = DataLoader(
-        dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=2
+        dataset=train_dataset, batch_size=batch_size, shuffle=False, num_workers=2
     )
 
     valid_loader = DataLoader(
         dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2
     )
 
-    device = torch.device("cuda")  ## GTX 1060 6GB
+    device = torch.device("cuda:0")  ## GTX 1060 6GB
     model = build_unet()
     model = model.to(device)
 
