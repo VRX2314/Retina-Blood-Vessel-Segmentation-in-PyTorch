@@ -54,14 +54,14 @@ if __name__ == "__main__":
     create_dir("results")
 
     """ Load dataset """
-    test_x = sorted(glob("../data/toy_set/test/img/*"))
-    test_y = sorted(glob("../data/toy_set/test/mask/*"))
+    test_x = sorted(glob("../data/smol_split/train/img/*"))
+    test_y = sorted(glob("../data/smol_split/train/vessel/*"))
 
     """ Hyperparameters """
     H = 512
     W = 512
     size = (W, H)
-    checkpoint_path = "./toy.pth"
+    checkpoint_path = "../models/unet_smol_100.pth"
 
     """ Load the checkpoint """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -121,8 +121,7 @@ if __name__ == "__main__":
         line = np.ones((size[1], 10, 3)) * 128
 
         cat_images = np.concatenate([image, line, ori_mask, line, pred_y * 255], axis=1)
-        print(cat_images)
-        cv2.imwrite(f"./results/{name}.png", cat_images)
+        cv2.imwrite(f"./results/{time.time()}.png", cat_images)
 
     jaccard = metrics_score[0] / len(test_x)
     f1 = metrics_score[1] / len(test_x)

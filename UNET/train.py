@@ -8,6 +8,7 @@ import torch.nn as nn
 
 from data import DriveDataset
 from model import build_unet
+from model_aunet import R2AttU_Net
 from loss import DiceLoss, DiceBCELoss
 from utils import seeding, create_dir, epoch_time
 
@@ -64,17 +65,23 @@ if __name__ == "__main__":
     # valid_x = sorted(glob("../data/split_ds/test/img/*"))
     # valid_y = sorted(glob("../data/split_ds/test/vessel/*"))
 
-    train_x = sorted(glob("../data/smol_split/train/img/*"))
-    train_y = sorted(glob("../data/smol_split/train/vessel/*"))
+    # train_x = sorted(glob("../data/smol_split/train/img/*"))
+    # train_y = sorted(glob("../data/smol_split/train/vessel/*"))
 
-    valid_x = sorted(glob("../data/smol_split/test/img/*"))
-    valid_y = sorted(glob("../data/smol_split/test/vessel/*"))
+    # valid_x = sorted(glob("../data/smol_split/test/img/*"))
+    # valid_y = sorted(glob("../data/smol_split/test/vessel/*"))
 
     # train_x = sorted(glob("../data/toy_set/test/img/*"))
-    # train_y = sorted(glob("../data/toy_set/test/mask/*"))
+    # train_y = sorted(glob("../data/toy_set/test/mask2/*"))
 
     # valid_x = sorted(glob("../data/toy_set/test/img/*"))
-    # valid_y = sorted(glob("../data/toy_set/test/mask/*"))
+    # valid_y = sorted(glob("../data/toy_set/test/mask2/*"))
+
+    train_x = sorted(glob("../data/toy_set/test/img/*"))
+    train_y = sorted(glob("../data/toy_set/test/mask/*"))
+
+    valid_x = sorted(glob("../data/toy_set/test/img/*"))
+    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -83,10 +90,10 @@ if __name__ == "__main__":
     H = 512
     W = 512
     size = (H, W)
-    batch_size = 4
-    num_epochs = 500
+    batch_size = 1
+    num_epochs = 200
     lr = 1e-4
-    checkpoint_path = "./unet_smol_500.pth"
+    checkpoint_path = "./aunet_toy_mask.pth"
 
     """ Dataset and loader """
     train_dataset = DriveDataset(train_x, train_y)
@@ -101,7 +108,8 @@ if __name__ == "__main__":
     )
 
     device = torch.device("cuda:0")  ## GTX 1060 6GB
-    model = build_unet()
+    # model = build_unet()
+    model = R2AttU_Net()
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
