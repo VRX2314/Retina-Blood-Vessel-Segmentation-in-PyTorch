@@ -52,13 +52,14 @@ def evaluate(model, loader, loss_fn, device):
 
 
 if __name__ == "__main__":
-    """Seeding"""
+    # Seed the weights
+
     seeding(42)
 
     # """ Directories """
     # create_dir("files")
 
-    """ Load dataset """
+    """ ################### Load dataset ################### """
     # train_x = sorted(glob("../data/split_ds/train/img/*"))
     # train_y = sorted(glob("../data/split_ds/train/vessel/*"))
 
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
 
-    """ Hyperparameters """
+    """ ################### Hyperparameters ################### """
     H = 512
     W = 512
     size = (H, W)
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     lr = 1e-4
     checkpoint_path = "./aunet_toy_mask.pth"
 
-    """ Dataset and loader """
+    # Dataset and loader
     train_dataset = DriveDataset(train_x, train_y)
     valid_dataset = DriveDataset(valid_x, valid_y)
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     )
     loss_fn = DiceBCELoss()
 
-    """ Training the model """
+    # Fitting the model
     best_valid_loss = float("inf")
 
     for epoch in range(num_epochs):
@@ -127,7 +128,7 @@ if __name__ == "__main__":
         train_loss = train(model, train_loader, optimizer, loss_fn, device)
         valid_loss = evaluate(model, valid_loader, loss_fn, device)
 
-        """ Saving the model """
+        # Saving the model
         if valid_loss < best_valid_loss:
             data_str = f"Valid loss improved from {best_valid_loss:2.4f} to {valid_loss:2.4f}. Saving checkpoint: {checkpoint_path}"
             print(data_str)

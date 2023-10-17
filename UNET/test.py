@@ -1,10 +1,9 @@
-import os, time
+import time
 from operator import add
 import numpy as np
 from glob import glob
 import cv2
 from tqdm import tqdm
-import imageio
 import torch
 from sklearn.metrics import (
     accuracy_score,
@@ -15,17 +14,17 @@ from sklearn.metrics import (
 )
 
 from model import build_unet
-from utils import create_dir, seeding
+from utils import seeding
 
 
 def calculate_metrics(y_true, y_pred):
-    """Ground truth"""
+    # Ground Truth
     y_true = y_true.cpu().numpy()
     y_true = y_true > 0.5
     y_true = y_true.astype(np.uint8)
     y_true = y_true.reshape(-1)
 
-    """ Prediction """
+    # Prediction
     y_pred = y_pred.cpu().numpy()
     y_pred = y_pred > 0.5
     y_pred = y_pred.astype(np.uint8)
@@ -47,23 +46,20 @@ def mask_parse(mask):
 
 
 if __name__ == "__main__":
-    """Seeding"""
+    # Seed the weights
     seeding(42)
 
-    """ Folders """
-    create_dir("results")
+    # Load DS
+    test_x = sorted(glob("../data/DRIVE/training/images/*"))
+    test_y = sorted(glob("../data/DRIVE/training/1st_manual/*"))
 
-    """ Load dataset """
-    test_x = sorted(glob("../data/smol_split/train/img/*"))
-    test_y = sorted(glob("../data/smol_split/train/vessel/*"))
-
-    """ Hyperparameters """
+    """ ###############Hyperparameters############### """
     H = 512
     W = 512
     size = (W, H)
-    checkpoint_path = "../models/unet_smol_100.pth"
+    checkpoint_path = "../models/unet_200_drive.pth"
 
-    """ Load the checkpoint """
+    # Model Initialization
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = build_unet()
@@ -75,10 +71,10 @@ if __name__ == "__main__":
     time_taken = []
 
     for i, (x, y) in tqdm(enumerate(zip(test_x, test_y)), total=len(test_x)):
-        """Extract the name"""
+        # Extract file name
         name = x.split("/")[-1].split(".")[0]
 
-        """ Reading image """
+        # Read Input
         image = cv2.imread(x, cv2.IMREAD_COLOR)  ## (512, 512, 3)
         image = cv2.resize(image, (512, 512))
         ## image = cv2.resize(image, size)
@@ -89,10 +85,10 @@ if __name__ == "__main__":
         x = torch.from_numpy(x)
         x = x.to(device)
 
-        """ Reading mask """
+        # Read Mask
         mask = cv2.imread(y, cv2.IMREAD_GRAYSCALE)  ## (512, 512)
         mask = cv2.resize(mask, (512, 512))
-        ## mask = cv2.resize(mask, size)
+
         y = np.expand_dims(mask, axis=0)  ## (1, 512, 512)
         y = y / 255.0
         y = np.expand_dims(y, axis=0)  ## (1, 1, 512, 512)
@@ -101,7 +97,7 @@ if __name__ == "__main__":
         y = y.to(device)
 
         with torch.no_grad():
-            """Prediction and Calculating FPS"""
+            # Inference
             start_time = time.time()
             pred_y = model(x)
             pred_y = torch.sigmoid(pred_y)
@@ -115,7 +111,7 @@ if __name__ == "__main__":
             pred_y = pred_y > 0.5
             pred_y = np.array(pred_y, dtype=np.uint8)
 
-        """ Saving masks """
+        # Save Results
         ori_mask = mask_parse(mask)
         pred_y = mask_parse(pred_y)
         line = np.ones((size[1], 10, 3)) * 128

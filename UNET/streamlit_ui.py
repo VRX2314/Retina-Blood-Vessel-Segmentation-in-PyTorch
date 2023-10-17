@@ -5,7 +5,6 @@ import numpy as np
 import cv2
 import torch
 
-
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -25,7 +24,7 @@ def mask_parse(mask):
 
 
 def calculate_metrics(y_true, y_pred):
-    """Ground truth"""
+    # Ground truth
     y_true = y_true.cpu().numpy()
     y_true = y_true > 0.5
     y_true = y_true.astype(np.uint8)
@@ -54,6 +53,8 @@ def init_unet_model(path):
 
 
 st.title("Retinal Vessel Segmentation")
+
+# Select Model Checkpoint
 path_mods = st.selectbox(
     "Select Checkpoint", ["Toy Unet", "Unet 500", "Unet Drive 200"]
 )
