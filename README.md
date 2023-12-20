@@ -4,6 +4,8 @@ This project aims at establishing a training and modelling piepline for **U-Net*
 
 **Research Paper describing the project available in './project' directory**
 
+⚠️ Images may not load due to DNS issue. In such case, all images are present in './img' directory.
+
 ## User Interface
 
 ![UI](./img/ui.png 'UI')
