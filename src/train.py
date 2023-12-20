@@ -66,11 +66,11 @@ if __name__ == "__main__":
     # valid_x = sorted(glob("../data/split_ds/test/img/*"))
     # valid_y = sorted(glob("../data/split_ds/test/vessel/*"))
 
-    # train_x = sorted(glob("../data/smol_split/train/img/*"))
-    # train_y = sorted(glob("../data/smol_split/train/vessel/*"))
+    train_x = sorted(glob("../data/smol_split/train/img/*"))
+    train_y = sorted(glob("../data/smol_split/train/vessel/*"))
 
-    # valid_x = sorted(glob("../data/smol_split/test/img/*"))
-    # valid_y = sorted(glob("../data/smol_split/test/vessel/*"))
+    valid_x = sorted(glob("../data/smol_split/test/img/*"))
+    valid_y = sorted(glob("../data/smol_split/test/vessel/*"))
 
     # train_x = sorted(glob("../data/toy_set/test/img/*"))
     # train_y = sorted(glob("../data/toy_set/test/mask2/*"))
@@ -78,11 +78,11 @@ if __name__ == "__main__":
     # valid_x = sorted(glob("../data/toy_set/test/img/*"))
     # valid_y = sorted(glob("../data/toy_set/test/mask2/*"))
 
-    train_x = sorted(glob("../data/toy_set/test/img/*"))
-    train_y = sorted(glob("../data/toy_set/test/mask/*"))
+    # train_x = sorted(glob("../data/DRIVE/training/images/*"))
+    # train_y = sorted(glob("../data/DRIVE/training/1st_manual/*"))
 
-    valid_x = sorted(glob("../data/toy_set/test/img/*"))
-    valid_y = sorted(glob("../data/toy_set/test/mask/*"))
+    # valid_x = sorted(glob("../data/DRIVE/test/images/*"))
+    # valid_y = sorted(glob("../data/DRIVE/test/1st_manual/*"))
 
     data_str = f"Dataset Size:\nTrain: {len(train_x)} - Valid: {len(valid_x)}\n"
     print(data_str)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     batch_size = 1
     num_epochs = 200
     lr = 1e-4
-    checkpoint_path = "./aunet_toy_mask.pth"
+    checkpoint_path = "./test_mac.pth"
 
     # Dataset and loader
     train_dataset = DriveDataset(train_x, train_y)
@@ -108,9 +108,10 @@ if __name__ == "__main__":
         dataset=valid_dataset, batch_size=batch_size, shuffle=False, num_workers=2
     )
 
-    device = torch.device("cuda:0")
-    # model = build_unet()
-    model = R2AttU_Net()
+    device = torch.device("mps:0")
+    # device = torch.device("cuda:0")
+    model = build_unet()
+    # model = R2AttU_Net()
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
